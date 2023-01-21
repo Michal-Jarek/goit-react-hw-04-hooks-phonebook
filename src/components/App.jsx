@@ -14,46 +14,20 @@ const INITIAL_CONTACTS = [
 ];
 
 export const App = () => {
-  const [contacts, handleContacts] = useState([...INITIAL_CONTACTS]);
+  const [contacts, handleContacts] = useState(
+    JSON.parse(localStorage.getItem('Contacts')) || [...INITIAL_CONTACTS]
+  );
   const [filter, setFilter] = useState('');
-  console.log('po deklaracji');
-  console.log(contacts);
 
-  // ********************* Methods **************
   useEffect(() => {
-    console.log('w montażu');
-    if (localStorage.getItem('Contacts') !== null) {
-      console.log('jestem w iF');
-      handleContacts(JSON.parse(localStorage.getItem('Contacts')));
-    }
-    console.log(contacts);
-    console.log('po montażu');
-  }, []);
+    localStorage.setItem('Contacts', JSON.stringify(contacts));
+  }, [contacts]);
 
-  // componentDidMount() {
-  //   if (localStorage.getItem('Contacts') !== null)
-  //     this.setState({ contacts: JSON.parse(localStorage.getItem('Contacts')) });
-  // }
-
-  // useEffect(() => {
-  //   console.log('w update');
-  //   localStorage.setItem('Contacts', JSON.stringify(contacts));
-  //   console.log(contacts);
-  //   console.log('po update');
-  // }, [contacts]);
-
-  // componentDidUpdate(prevProps, prevState) {
-  //   if (this.state.contacts !== prevState.contacts)
-  //     localStorage.setItem('Contacts', JSON.stringify(this.state.contacts));
-  // }
+  // ********************* Refactored Methods **************
 
   const handleChange = e => {
-    handleContacts({ [e.target.name]: e.target.value });
+    setFilter(e.target.value);
   };
-
-  // handleChange = e => {
-  //   this.setState({ [e.target.name]: e.target.value });
-  // };
 
   const handleSubmit = ({ name, number }) => {
     const contactCopy = [...contacts];
@@ -85,11 +59,12 @@ export const App = () => {
       return arrayCopy;
     }
   };
-  // handleDelete = id => {
-  //   this.setState(prevState => ({
-  //     contacts: prevState.contacts.filter(contact => contact.id !== id),
-  //   }));
-  // };
+
+  const handleDelete = id => {
+    const contactsCopy = [...contacts];
+
+    handleContacts([...contactsCopy.filter(contact => contact.id !== id)]);
+  };
 
   // ********************* End Methods **************
 
@@ -113,9 +88,8 @@ export const App = () => {
 
       <Section title="Contacts">
         <UserList
-          array={contacts}
-          // array={handleFilter(filter, contacts)}
-          // handleDelete={handleDelete}
+          array={handleFilter(filter, contacts)}
+          handleDelete={handleDelete}
         >
           <Filter filter={filter} handleChange={handleChange} />
         </UserList>
